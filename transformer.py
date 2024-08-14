@@ -26,5 +26,3 @@ encoded_output = tok(input_sentence, return_tensors="pt")
 model= TransformerIsAllYouNeed()
 output = model(encoded_output["input_ids"])
 print(output.shape)
-
-
