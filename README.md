@@ -75,7 +75,6 @@ It contain the code to call the Encoder-decoder architecture
     logits = custom_model(encoded_input["input_ids"], encoded_input["token_type_ids"])
     print("Custom Model Weight Loaded from HF: ", torch.softmax(logits, -1))
 ```
-
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/Anurich/TransformerIsAllYouNeed.git
