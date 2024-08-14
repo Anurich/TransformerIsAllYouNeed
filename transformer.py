@@ -2,6 +2,10 @@ from model.Encoder_decoder import Encoder, config
 from model.Encoder_decoder import Decoder
 import torch.nn as nn
 from transformers import AutoTokenizer
+from model.replicate_bert import bert
+from transformers import BertTokenizer
+import torch
+
 class TransformerIsAllYouNeed(nn.Module):
     def __init__(self) -> None:
         super().__init__()
@@ -26,3 +30,14 @@ encoded_output = tok(input_sentence, return_tensors="pt")
 model= TransformerIsAllYouNeed()
 output = model(encoded_output["input_ids"])
 print(output.shape)
+
+
+## For custom Bert Implementation 
+
+custom_model = bert.load_pretrained_model_weight_to_custom_model()
+print("Weight loaded sucessfully !")
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+text = "Replace me by any text you'd like."
+encoded_input = tokenizer(text, return_tensors='pt')
+logits = custom_model(encoded_input["input_ids"], encoded_input["token_type_ids"])
+print("Custom Model Weight Loaded from HF: ", torch.softmax(logits, -1))

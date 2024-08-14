@@ -30,6 +30,31 @@ This repository contains code for two key projects:
 It contain the code to call the Encoder-decoder architecture
 ## Installation
 
+### Code
+```python
+    input_sentence="""
+    The key and value used in the cross-attention mechanism of the decoder are indeed taken 
+    from the output of the encoder block, specifically after the feed-forward network. This ensures that these vectors carry the full contextual and transformed information from the encoder, making them highly informative for the decoder's
+    attention mechanism.
+    """
+    tok = AutoTokenizer.from_pretrained("bert-base-uncased")
+    encoded_output = tok(input_sentence, return_tensors="pt")
+    model= TransformerIsAllYouNeed()
+    output = model(encoded_output["input_ids"])
+    print(output.shape)
+
+
+    ## For custom Bert Implementation 
+
+    custom_model = bert.load_pretrained_model_weight_to_custom_model()
+    print("Weight loaded sucessfully !")
+    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    text = "Replace me by any text you'd like."
+    encoded_input = tokenizer(text, return_tensors='pt')
+    logits = custom_model(encoded_input["input_ids"], encoded_input["token_type_ids"])
+    print("Custom Model Weight Loaded from HF: ", torch.softmax(logits, -1))
+```
+
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/Anurich/TransformerIsAllYouNeed.git

@@ -1,7 +1,6 @@
 import torch.nn as nn
 from dataclasses import dataclass
 from transformers import BertForSequenceClassification as HF_BertForSequenceClassification
-from transformers import BertTokenizer
 
 import torch
 @dataclass
@@ -152,10 +151,4 @@ def load_pretrained_model_weight_to_custom_model():
 
     return custom_model
 
-custom_model = load_pretrained_model_weight_to_custom_model()
-print("Weight loaded sucessfully !")
-tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-text = "Replace me by any text you'd like."
-encoded_input = tokenizer(text, return_tensors='pt')
-logits = custom_model(encoded_input["input_ids"], encoded_input["token_type_ids"])
-print("Custom Model Weight Loaded from HF: ", torch.softmax(logits, -1))
+
