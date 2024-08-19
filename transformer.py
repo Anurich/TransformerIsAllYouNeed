@@ -1,7 +1,8 @@
-from model.Encoder_decoder import Encoder, config
-from model.Encoder_decoder import Decoder
+from model.Encoder_decoder.encoder import Encoder, config
+from model.Encoder_decoder.decoder import Decoder
 import torch.nn as nn
 from transformers import AutoTokenizer
+from model.replicate_bert import bert_with_MOE
 from model.replicate_bert import bert
 from transformers import BertTokenizer
 import torch
@@ -41,3 +42,13 @@ text = "Replace me by any text you'd like."
 encoded_input = tokenizer(text, return_tensors='pt')
 logits = custom_model(encoded_input["input_ids"], encoded_input["token_type_ids"])
 print("Custom Model Weight Loaded from HF: ", torch.softmax(logits, -1))
+
+## bert with Sparse mixture of expert 
+bert_with_moe = bert_with_MOE.BertForSequenceClassificationMOE()
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+text = "Replace me by any text you'd like."
+encoded_input = tokenizer(text, return_tensors='pt')
+input_ids = encoded_input["input_ids"]
+output = bert_with_moe(input_ids, encoded_input["token_type_ids"])
+print("Output from Bert with Mixture of experts!")
+print(output)

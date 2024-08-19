@@ -1,5 +1,5 @@
 import torch.nn as nn
-from encoder import  MultiHeadedAttention, MLP
+from model.Encoder_decoder.encoder import  MultiHeadedAttention, MLP
 import torch
 
 class DecoderBlock(nn.Module):

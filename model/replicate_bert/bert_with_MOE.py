@@ -1,6 +1,6 @@
 import torch.nn as nn
 from dataclasses import dataclass
-from transformers import BertForSequenceClassification as HF_BertForSequenceClassification
+from model.replicate_bert.mixture_of_experts import MOE
 
 import torch
 @dataclass
@@ -32,14 +32,10 @@ class BertAttention(nn.Module):
             })
         })
 
-
-        self.intermediate = nn.ModuleDict({
-            "dense": nn.Linear(in_features=config.embedding_dim, out_features=3072, bias=True),
-            "intermediate_act_fn": nn.GELU()
-        })
+        self.moe = MOE(config)
 
         self.output = nn.ModuleDict({
-            "dense": nn.Linear(in_features=3072, out_features=config.embedding_dim, bias=True),
+            "dense": nn.Linear(in_features=config.embedding_dim, out_features=config.embedding_dim, bias=True),
             "LayerNorm": nn.LayerNorm((config.embedding_dim,), eps=1e-12, elementwise_affine=True),
             "dropout": nn.Dropout(p=0.1, inplace=False)
         })
@@ -68,21 +64,22 @@ class BertAttention(nn.Module):
         x =  x+ self.attention.output["LayerNorm"](output) # residual conntection
         output = self.attention.output["dropout"](x)
 
-        output = self.intermediate["dense"](output)
-        output = self.intermediate["intermediate_act_fn"](output)
+        output = self.moe(output)
+     
+        # output = self.intermediate["dense"](output)
+        # output = self.intermediate["intermediate_act_fn"](output)
 
         output = self.output["dense"](output)
         x = x + self.output["LayerNorm"](output) # residual connection
         output = self.output["dropout"](x)
-
 
         return output
 
 
 
 
-class BertForSequenceClassification(nn.Module):
-    def __init__(self, total_class = 2) -> None:
+class BertForSequenceClassificationMOE(nn.Module):
+    def __init__(self, total_class = None) -> None:
         super().__init__()
 
         self.embeddings = nn.ModuleDict({
@@ -102,11 +99,12 @@ class BertForSequenceClassification(nn.Module):
             "dense": nn.Linear(in_features=config.embedding_dim, out_features=config.embedding_dim, bias=True),
             "activation": nn.Tanh()
         })
+        self.total_class = total_class
+        if total_class != None:
+            self.dropout = nn.Dropout(p=0.1, inplace=False)
+            self.classifier = nn.Linear(in_features=config.embedding_dim, out_features=total_class) 
 
-        self.dropout = nn.Dropout(p=0.1, inplace=False)
-        self.classifier = nn.Linear(in_features=config.embedding_dim, out_features=total_class) 
-
-    def forward(self, x, token_type_ids, last_hidden_state=True):
+    def forward(self, x, token_type_ids, last_hidden_state=False):
         B, T = x.size()
         
         token_embeddings = self.embeddings["word_embeddings"](x)
@@ -128,29 +126,12 @@ class BertForSequenceClassification(nn.Module):
         pooled_output = self.BertPooler["activation"](pooled_output)
 
         # Classification
-        pooled_output = self.dropout(pooled_output)
-        logits = self.classifier(pooled_output)
+        if self.total_class!= None:
+            pooled_output = self.dropout(pooled_output)
+            logits = self.classifier(pooled_output)
+            return {"pooled_output": pooled_output, "logits": logits}
+        return {"pooled_output": pooled_output}
 
-        return logits
 
-
-def load_pretrained_model_weight_to_custom_model():
-    model_hf = HF_BertForSequenceClassification.from_pretrained("bert-base-uncased")
-    custom_model = BertForSequenceClassification()
-    pretrained_dict = model_hf.state_dict()
-    custom_dict    = custom_model.state_dict()
-    pretrained_keys = list(pretrained_dict.keys())
-    custom_keys = list(custom_dict.keys())
-    assert len(pretrained_keys) == len(custom_keys)
-
-    weight_transfer_dict = dict()
-    for key, val in pretrained_dict.items():
-        if key.replace("bert.", "").replace("self.","") in custom_keys:
-            weight_transfer_dict[key.replace("bert.", "").replace("self.","")] = val
-
-    custom_dict.update(weight_transfer_dict)
-    custom_model.load_state_dict(custom_dict)
-
-    return custom_model
 
 
