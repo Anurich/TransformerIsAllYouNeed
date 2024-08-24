@@ -1,6 +1,7 @@
 import torch.nn as nn
 from dataclasses import dataclass
 from model.replicate_bert.mixture_of_experts import MOE
+import torch.nn.functional as F
 
 import torch
 @dataclass
@@ -79,9 +80,9 @@ class BertAttention(nn.Module):
 
 
 class BertForSequenceClassificationMOE(nn.Module):
-    def __init__(self, total_class = None) -> None:
+    def __init__(self, type="masked") -> None:
         super().__init__()
-
+        self.type = type
         self.embeddings = nn.ModuleDict({
             "word_embeddings": nn.Embedding(num_embeddings=config.vocab_size, embedding_dim=config.embedding_dim, padding_idx=0),
             "position_embeddings": nn.Embedding(num_embeddings=config.block_size, embedding_dim=config.embedding_dim),
@@ -99,12 +100,12 @@ class BertForSequenceClassificationMOE(nn.Module):
             "dense": nn.Linear(in_features=config.embedding_dim, out_features=config.embedding_dim, bias=True),
             "activation": nn.Tanh()
         })
-        self.total_class = total_class
-        if total_class != None:
-            self.dropout = nn.Dropout(p=0.1, inplace=False)
-            self.classifier = nn.Linear(in_features=config.embedding_dim, out_features=total_class) 
 
-    def forward(self, x, token_type_ids, last_hidden_state=False):
+        self.dropout = nn.Dropout(p=0.1, inplace=False)
+        self.loss_fct = nn.CrossEntropyLoss()
+        self.classifier = nn.Linear(in_features=config.embedding_dim, out_features=config.vocab_size) 
+
+    def forward(self, x, token_type_ids=None,labels=None):
         B, T = x.size()
         
         token_embeddings = self.embeddings["word_embeddings"](x)
@@ -116,22 +117,22 @@ class BertForSequenceClassificationMOE(nn.Module):
         input_to_self_attention = token_embeddings + positional_embeddings + token_type_embeddings
         input_to_self_attention = self.embeddings["dropout"](self.embeddings["LayerNorm"](input_to_self_attention))
         # we pass through attention block 12 times 
-        hidden_states = []
+        
         for layer in self.encoder["layer"]:
             input_to_self_attention = layer(input_to_self_attention)
-            if last_hidden_state:
-                hidden_states.append(input_to_self_attention)
 
-        pooled_output = self.BertPooler["dense"](input_to_self_attention[:, 0])
-        pooled_output = self.BertPooler["activation"](pooled_output)
+        if self.type != "masked":
+            pooled_output = self.BertPooler["dense"](input_to_self_attention[:, 0])
+            pooled_output = self.BertPooler["activation"](pooled_output)
 
-        # Classification
-        if self.total_class!= None:
-            pooled_output = self.dropout(pooled_output)
-            logits = self.classifier(pooled_output)
-            return {"pooled_output": pooled_output, "logits": logits}
-        return {"pooled_output": pooled_output}
+        else:
+            logits = self.classifier(input_to_self_attention)
+            loss = None
+            if labels is not None:
+                # Flatten the logits and labels for computing loss
+                loss = self.loss_fct(logits.view(-1, config.vocab_size), labels.view(-1))
 
+            return {"loss": loss, "logits": logits}
 
 
 
