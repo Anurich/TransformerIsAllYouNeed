@@ -1,15 +1,12 @@
-from model.custom_dataset_for_MLM.custom_dataset import tokenization
+from src.custom_dataset_for_MLM.custom_dataset import tokenization
 from transformers import  DataCollatorForLanguageModeling
-# from model.replicate_bert.bert_with_MOE import BertForSequenceClassificationMOE
-from model.replicate_bert.bert_with_MOE import BertForSequenceClassificationMOE
+from src.model.replicate_bert.bert_with_MOE import BertForSequenceClassificationMOE
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import torch
 data_path = "model/data/romeo_juliet.txt"
 custom_dataset = tokenization(data_path)
 
-print(len(custom_dataset.tokenizer))
-exit(0)
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=custom_dataset.tokenizer, mlm=True, mlm_probability=0.15)
 bert_moe = BertForSequenceClassificationMOE(type="masked")

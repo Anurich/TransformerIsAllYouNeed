@@ -1,9 +1,9 @@
-from model.Encoder_decoder.encoder import Encoder, config
-from model.Encoder_decoder.decoder import Decoder
+from src.model.Encoder_decoder.encoder import Encoder, config
+from src.model.Encoder_decoder.decoder import Decoder
 import torch.nn as nn
 from transformers import AutoTokenizer
-from model.replicate_bert import bert_with_MOE
-from model.replicate_bert import bert
+from src.model.replicate_bert import bert_with_MOE
+from src.model.replicate_bert import bert
 from transformers import BertTokenizer
 import torch
 
