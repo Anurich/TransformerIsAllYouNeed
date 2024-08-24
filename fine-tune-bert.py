@@ -11,7 +11,7 @@ custom_dataset = tokenization(data_path)
 
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=custom_dataset.tokenizer, mlm=True, mlm_probability=0.15)
-bert_masked = BertForSequenceClassificationMOE(type="masked")
+bert_moe = BertForSequenceClassificationMOE(type="masked")
 
 dataset = custom_dataset.toknized_data.select_columns(['input_ids', 'token_type_ids', "attention_mask"])
 dataset = dataset.train_test_split(test_size=0.2)
@@ -21,7 +21,7 @@ dev_loader = DataLoader(dataset["test"], batch_size=12, collate_fn=data_collator
 
 
 epoch = 10
-optimizer = torch.optim.Adam(bert_masked.parameters())
+optimizer = torch.optim.Adam(bert_moe.parameters())
 loss_fn = torch.nn.CrossEntropyLoss()
 for i in tqdm(range(epoch)):
     total_loss = 0
@@ -31,7 +31,7 @@ for i in tqdm(range(epoch)):
         token_type_ids = train_data["token_type_ids"]
         labels = train_data["labels"]
 
-        output = bert_masked(x=input_ids, token_type_ids=token_type_ids, labels=labels)
+        output = bert_moe(x=input_ids, token_type_ids=token_type_ids, labels=labels)
         loss_fn  = output["loss"]
         
         total_loss += loss_fn.item()
@@ -40,4 +40,18 @@ for i in tqdm(range(epoch)):
     
 
     if i % 5 ==0:
-        print(total_loss/len(train_loader))
+        print("Train Loss: ",total_loss/len(train_loader))
+
+# for testing
+with torch.no_grad:
+    bert_moe.eval()
+    total_dev_loss = 0.0
+    for dev_data in dev_loader:
+        input_ids = dev_data["input_ids"]
+        token_type_ids = dev_data["token_type_ids"]
+        labels = dev_data["labels"]
+        output = bert_moe(x=input_ids, token_type_ids=token_type_ids, labels=labels)
+        loss_fn  = output["loss"]
+        total_dev_loss += loss_fn.item()
+    
+    print("Dev Loss: ", total_dev_loss/len(dev_loader))
