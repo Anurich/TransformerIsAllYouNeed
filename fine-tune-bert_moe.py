@@ -8,7 +8,8 @@ import torch
 data_path = "model/data/romeo_juliet.txt"
 custom_dataset = tokenization(data_path)
 
-
+print(len(custom_dataset.tokenizer))
+exit(0)
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=custom_dataset.tokenizer, mlm=True, mlm_probability=0.15)
 bert_moe = BertForSequenceClassificationMOE(type="masked")
