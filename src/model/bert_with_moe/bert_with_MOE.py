@@ -1,6 +1,6 @@
 import torch.nn as nn
 from dataclasses import dataclass
-from model.replicate_bert.mixture_of_experts import MOE
+from model.bert_with_moe.mixture_of_experts import MOE
 import torch.nn.functional as F
 
 import torch
