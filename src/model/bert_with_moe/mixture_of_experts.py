@@ -1,5 +1,5 @@
 import torch.nn  as nn
-from model.custom_bert_loaded_with_hf.bert import config
+from src.model.custom_bert_loaded_with_hf.bert import config
 import torch
 
 class ExpertArchitecture(nn.Module):

@@ -11,9 +11,9 @@ class customDataset:
 
 
 class tokenization(customDataset):
-    def __init__(self, dataset_path) -> None:
+    def __init__(self, dataset_path, tokenizer) -> None:
         super().__init__(dataset_path)
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.tokenizer = tokenizer
         self.toknized_data = self.train_data.map(self.tokenization_step, batched=True, batch_size=12)
 
     def tokenization_step(self, examples):

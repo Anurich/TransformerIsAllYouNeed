@@ -1,16 +1,27 @@
 from src.custom_dataset_for_MLM.custom_dataset import tokenization
 from transformers import  DataCollatorForLanguageModeling
-from src.model.replicate_bert.bert_with_MOE import BertForSequenceClassificationMOE
+from src.model.bert_with_moe.bert_with_MOE import BertForSequenceClassificationMOE
+from transformers import PreTrainedTokenizerFast
+
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import torch
-data_path = "model/data/romeo_juliet.txt"
-custom_dataset = tokenization(data_path)
+from src.model.train_tokenizer.tokenizer import TrainTokenizerBert
 
-
-data_collator = DataCollatorForLanguageModeling(tokenizer=custom_dataset.tokenizer, mlm=True, mlm_probability=0.15)
+data_path = "src/data/romeo_juliet.txt"
+custom_tokenization = TrainTokenizerBert(train_corpus=data_path)
+custom_tokenization.fit()
+tokenizer = PreTrainedTokenizerFast.from_pretrained("src/data/save_tokenizer_bert/bert_bpe.json", 
+                                                    unk_token="[UNK]",
+                                                    pad_token="[PAD]",
+                                                    cls_token="[CLS]",
+                                                    sep_token="[SEP]",
+                                                    mask_token="[MASK]"
+                                                    )
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
 bert_moe = BertForSequenceClassificationMOE(type="masked")
 
+custom_dataset = tokenization(dataset_path=data_path, tokenizer=tokenizer)
 dataset = custom_dataset.toknized_data.select_columns(['input_ids', 'token_type_ids', "attention_mask"])
 dataset = dataset.train_test_split(test_size=0.2)
 
@@ -18,12 +29,13 @@ train_loader = DataLoader(dataset["train"], batch_size=12, collate_fn=data_colla
 dev_loader = DataLoader(dataset["test"], batch_size=12, collate_fn=data_collator)
 
 
+
 epoch = 10
 optimizer = torch.optim.Adam(bert_moe.parameters())
 loss_fn = torch.nn.CrossEntropyLoss()
 for i in tqdm(range(epoch)):
     total_loss = 0
-    for train_data in train_loader:
+    for train_data in tqdm(train_loader):
         optimizer.zero_grad()
         input_ids = train_data["input_ids"]
         token_type_ids = train_data["token_type_ids"]
