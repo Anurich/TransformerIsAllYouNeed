@@ -34,7 +34,8 @@ epoch = 10
 optimizer = torch.optim.Adam(bert_moe.parameters())
 loss_fn = torch.nn.CrossEntropyLoss()
 for i in tqdm(range(epoch)):
-    total_loss = 0
+    bert_moe.train()
+    total_train_loss = 0
     for train_data in tqdm(train_loader):
         optimizer.zero_grad()
         input_ids = train_data["input_ids"]
@@ -44,24 +45,27 @@ for i in tqdm(range(epoch)):
         output = bert_moe(x=input_ids, token_type_ids=token_type_ids, labels=labels)
         loss_fn  = output["loss"]
         
-        total_loss += loss_fn.item()
+        total_train_loss += loss_fn.item()
         loss_fn.backward()
         optimizer.step()
     
 
     if i % 5 ==0:
-        print("Train Loss: ",total_loss/len(train_loader))
+        # Validation loop
+        bert_moe.eval()  # Set model to evaluation mode
+        total_dev_loss = 0.0
 
-# for testing
-with torch.no_grad:
-    bert_moe.eval()
-    total_dev_loss = 0.0
-    for dev_data in dev_loader:
-        input_ids = dev_data["input_ids"]
-        token_type_ids = dev_data["token_type_ids"]
-        labels = dev_data["labels"]
-        output = bert_moe(x=input_ids, token_type_ids=token_type_ids, labels=labels)
-        loss_fn  = output["loss"]
-        total_dev_loss += loss_fn.item()
-    
-    print("Dev Loss: ", total_dev_loss/len(dev_loader))
+        with torch.no_grad:
+            total_dev_loss = 0.0
+            for dev_data in dev_loader:
+                input_ids = dev_data["input_ids"]
+                token_type_ids = dev_data["token_type_ids"]
+                labels = dev_data["labels"]
+                output = bert_moe(x=input_ids, token_type_ids=token_type_ids, labels=labels)
+                loss_fn  = output["loss"]
+                total_dev_loss += loss_fn.item()
+            
+            avg_train_loss = total_train_loss / len(train_loader)
+            avg_dev_loss = total_dev_loss / len(dev_loader)        
+            print(f"Epoch {i} Train Loss: {avg_train_loss:.4f}")
+            print(f"Epoch {i} Train Loss: {avg_train_loss:.4f}")
