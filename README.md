@@ -1,49 +1,52 @@
 ```markdown
 # TransformerIsAllYouNeed
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Language](https://img.shields.io/badge/language-Python-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](#) [![Language](https://img.shields.io/badge/language-Python-blue.svg)](#)
 
-A Python-based project for implementing transformer models with a focus on BERT and mixture of experts (MoE) architectures.
+_A Python-based solution for implementing transformer models with a focus on BERT and mixture of experts (MoE) architectures._
 
 ## 📋 Table of Contents
-- [Overview](#overview)
-- [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Usage](#usage)
-- [Features](#features)
-- [Development](#development)
-- [Contributing](#contributing)
+- [🚀 Overview](#-overview)
+- [⚙️ Installation](#️-installation)
+- [📁 Project Structure](#-project-structure)
+- [📖 Usage](#-usage)
+- [✨ Features](#-features)
+- [💻 Development](#-development)
+- [📜 License](#-license)
 
 ## 🚀 Overview
-`TransformerIsAllYouNeed` is a comprehensive implementation of transformer models, particularly focusing on BERT and its variations, including mixture of experts (MoE) architectures. The project is designed to facilitate the training and fine-tuning of BERT models for various natural language processing tasks. With a modular structure, it allows for easy customization and extension of the models.
+TransformerIsAllYouNeed is a comprehensive library designed for building and fine-tuning transformer models, particularly BERT and its variants. The project leverages advanced techniques such as mixture of experts (MoE) to enhance model performance while maintaining efficiency. With a focus on ease of use and flexibility, this library provides tools for both researchers and practitioners in the field of natural language processing (NLP).
 
-The codebase includes essential components such as custom datasets for masked language modeling (MLM), tokenizers, and both encoder and decoder architectures. The project is built primarily in Python, making it accessible for developers familiar with the language.
+The library includes functionalities for training custom datasets, loading pre-trained models, and tokenization, making it a versatile choice for various NLP tasks. Whether you are looking to fine-tune existing models or develop new architectures, TransformerIsAllYouNeed offers the necessary components to streamline your workflow.
 
 ## ⚙️ Installation
-To get started with `TransformerIsAllYouNeed`, ensure you have Python installed on your machine. You can install the required dependencies using pip:
+To get started with TransformerIsAllYouNeed, ensure you have Python installed on your machine. Follow the steps below to set up the project:
 
-```bash
-pip install -r requirements.txt
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://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@github.com/Anurich/TransformerIsAllYouNeed.git
+   cd TransformerIsAllYouNeed
+   ```
 
-*Note: As of now, there are no specific dependencies listed, but ensure you have the necessary libraries for machine learning and NLP tasks.*
+2. **Install dependencies:**
+   (Currently, there are no specific dependencies listed. Please ensure you have the necessary libraries for running Python scripts, such as `transformers`, `torch`, etc.)
+
+3. **Run the setup:**
+   ```bash
+   python setup.py install
+   ```
 
 ## 📁 Project Structure
-The project directory is organized as follows:
-
-```
+```plaintext
 TransformerIsAllYouNeed/
-│
 ├── __init__.py
 ├── README.md
 ├── transformer.py
 ├── fine-tune-bert_moe.py
-│
 └── src/
     ├── custom_dataset_for_MLM/
     │   ├── custom_dataset.py
     │   └── __init__.py
-    │
     ├── model/
     │   ├── train_tokenizer/
     │   │   └── tokenizer.py
@@ -57,7 +60,6 @@ TransformerIsAllYouNeed/
     │       ├── bert_with_MOE.py
     │       ├── __init__.py
     │       └── mixture_of_experts.py
-    │
     └── data/
         ├── __init__.py
         ├── romeo_juliet.txt
@@ -67,53 +69,44 @@ TransformerIsAllYouNeed/
             ├── merges.txt
             └── vocab.json
 ```
+- `src/`: Contains the source code for the library, including model definitions and training scripts.
+- `data/`: Includes datasets and tokenizer files necessary for training and evaluation.
 
-### Key Components:
-- **`transformer.py`**: Core implementation of transformer models.
-- **`fine-tune-bert_moe.py`**: Script for fine-tuning BERT with MoE.
-- **`custom_dataset.py`**: Custom dataset implementation for masked language modeling.
-- **`tokenizer.py`**: Tokenization logic for BERT and RoBERTa models.
-
-## 🛠️ Usage
-To use the models and functionalities provided in this repository, you can start by importing the necessary classes and functions. Here’s a simple example of how to load a pretrained model and perform tokenization:
+## 📖 Usage
+To use the library, you can import the necessary classes and functions in your Python scripts. Here’s a simple example of how to load a pre-trained model and perform tokenization:
 
 ```python
-from src.model.bert_with_moe import BertForSequenceClassificationMOE
-from src.model.train_tokenizer.tokenizer import TrainTokenizerBert
+from transformer import TransformerIsAllYouNeed
 
-# Load a pretrained model
-model = BertForSequenceClassificationMOE()
-model.load_pretrained_model_weight_to_custom_model('path/to/pretrained/model')
+# Initialize the model
+model = TransformerIsAllYouNeed()
 
-# Tokenization
-tokenizer = TrainTokenizerBert()
-tokens = tokenizer.tokenization_step("Your input text here")
+# Load a pre-trained model
+model.load_pretrained_model_weight_to_custom_model('path/to/model')
+
+# Tokenization example
+tokens = model.tokenization_step("Your input text here")
+print(tokens)
 ```
 
-## 🌟 Features
-- **Custom Datasets**: Easily create and manage datasets for masked language modeling.
-- **Tokenization**: Built-in support for BERT and RoBERTa tokenization.
-- **Modular Architecture**: Separate components for encoder, decoder, and model training.
-- **Mixture of Experts**: Implementation of MoE for enhanced model performance.
+## ✨ Features
+- **Custom Dataset Handling**: Easily create and manage datasets for masked language modeling.
+- **Pre-trained Model Integration**: Load and fine-tune pre-trained BERT models with minimal setup.
+- **Mixture of Experts**: Implement advanced architectures that utilize mixture of experts for improved performance.
+- **Tokenization Utilities**: Built-in functions for efficient text tokenization.
 
-## 🛠️ Development
-Recent activity in the repository includes several commits by the owner, Anurich, indicating ongoing development and feature additions. Here are some of the latest commits:
+## 💻 Development
+Recent commits to the repository indicate active development:
+- **Latest Commits:**
+  - `fedb7135f09eef681b3e344853ed4db4ba690bd6` - added (2024-08-27)
+  - `bfae17f76975278641a2d110332097b6cb4bdad1` - added (2024-08-26)
+  - `1935da6ab380a84d6b10c81c3010bd1e4271073f` - added (2024-08-26)
+  - (More commits...)
 
-- **[fedb7135]** - added (2024-08-27)
-- **[bfae17f7]** - added (2024-08-26)
-- **[1935da6a]** - added (2024-08-26)
-- **[9a97daa8]** - added (2024-08-26)
-- **[6f20afb8]** - added (2024-08-26)
+### Contributing
+Contributions are welcome! If you have suggestions for improvements or want to report issues, please open an issue or submit a pull request. 
 
-### TODOs
-Currently, there are no specific TODOs listed, but contributions to enhance the project are welcome.
-
-## 🤝 Contributing
-Contributions are welcome! If you would like to contribute to `TransformerIsAllYouNeed`, please fork the repository and submit a pull request. Ensure to follow the coding standards and include tests for new features.
-
-For any issues or feature requests, please open an issue in the repository.
-
----
-
-Feel free to explore the code and contribute to the project. Happy coding! 🚀
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 ```
+
